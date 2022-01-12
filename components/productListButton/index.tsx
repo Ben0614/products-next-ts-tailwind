@@ -37,14 +37,17 @@ interface State {
 }
 
 function ProductListButton() {
+  // 獲取商品data和params
   const prodListParams = useSelector((state: State) => {
     return state.prodListParams;
   });
   // console.log('prodListParams',prodListParams);
   const router = useRouter();
 
+  // 上一頁按鈕
   const prevPage = () => {
     switch (prodListParams.params.slug[0]) {
+      // 在不同的分類頁要跳轉到不同的頁面
       case "page":
         router.push(`/prodList/page/${+prodListParams.params.slug[1] - 1}`);
         break;
@@ -73,7 +76,9 @@ function ProductListButton() {
         break;
     }
   };
+  // 下一頁按鈕
   const nextPage = () => {
+    // 在不同的分類頁要跳轉到不同的頁面
     switch (prodListParams.params.slug[0]) {
       case "page":
         router.push(`/prodList/page/${+prodListParams.params.slug[1] + 1}`);
@@ -108,6 +113,7 @@ function ProductListButton() {
     <>
       <div className="flex justify-center mb-5">
         {/* 上一頁 */}
+        {/* 判斷現在頁面 決定是否要禁止按鈕 */}
         <button
           disabled={
             prodListParams.params.slug[0] === "page"
@@ -126,6 +132,7 @@ function ProductListButton() {
           上一頁
         </button>
         {/* 數字-1 */}
+        {/* 判斷是否在全部商品 並判斷頁數 */}
         {prodListParams.params.slug[0] === "page" ? (
           +prodListParams.params.slug[1] <= 1 ? (
             ""

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const Home: NextPage = () => {
   const dispatch = useDispatch();
+  // 進入商品列表頁，就調用這個函式，讓分類的active顏色停留在全部商品
   const changeCategoryColor = useCallback(
     () =>
       dispatch({
@@ -17,6 +18,7 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="container mt-60">
+        {/* 商品列表 */}
         <div
           className="text-center text-4xl font-bold my-10"
           onClick={changeCategoryColor}
@@ -25,6 +27,7 @@ const Home: NextPage = () => {
             <a>ProdList</a>
           </Link>
         </div>
+        {/* 添加商品 */}
         <div className="text-center text-4xl font-bold my-10">
           <Link href="/addProduct">
             <a>AddProduct</a>

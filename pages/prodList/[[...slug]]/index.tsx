@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import Category from "../../../components/category";
 import ProductListButton from "../../../components/productListButton";
-
+// props 類型
 interface Props {
   data: {
     page: number;
@@ -38,7 +38,7 @@ interface Props {
   };
   params: { slug: Array<string> };
 }
-
+// 商品 類型
 interface V {
   EXP: string;
   Edible_Method: string;
@@ -57,7 +57,7 @@ interface V {
   sid: number;
   special_offer: string;
 }
-
+// 瀏覽紀錄 類型
 interface BrowserRecodeState {
   browserRecode: {
     browserRecode: [
@@ -98,6 +98,7 @@ function ProdList({ data, params }: Props) {
     payload: { params, data },
   });
 
+  // 如果搜索框為空，分類顏色就在全部商品
   const changeCategoryColor = useCallback(
     () =>
       dispatch({
@@ -107,43 +108,54 @@ function ProdList({ data, params }: Props) {
     [dispatch]
   );
 
+  // 從redux獲取瀏覽紀錄狀態
   const browserRecodeState = useSelector((state: BrowserRecodeState) => {
     return state.browserRecode;
   });
 
   // console.log("browserRecode", browserRecodeState);
 
+  // 更新瀏覽紀錄
   const updateBrowserRecode = (prod: V) => {
+    // 獲取localStorage
     let newBrowserRecode = JSON.parse(
       localStorage.getItem("browserRecode") || "[]"
     );
+    // 確認現在點擊的商品是否有在瀏覽紀錄李
     let index = newBrowserRecode.findIndex((v: V) => {
       return v.sid === prod.sid;
     });
 
+    // > -1 代表有在紀錄裡
     if (index > -1) {
+      // 先排除這個商品，再重新添加
       newBrowserRecode = newBrowserRecode.filter((v: V) => {
         return v.sid !== prod.sid;
       });
       newBrowserRecode.push(prod);
     } else {
+      // 直接添加
       newBrowserRecode.push(prod);
     }
 
+    // 紀錄最多4筆
     if (newBrowserRecode.length > 4) {
+      // 超過4筆就刪除最舊的(index為0的)，然後再更新localStorage
       newBrowserRecode = newBrowserRecode.filter((v: V, i: number) => {
         return i !== 0;
       });
       localStorage.setItem("browserRecode", JSON.stringify(newBrowserRecode));
     } else {
+      // 直接更新localStorage
       localStorage.setItem("browserRecode", JSON.stringify(newBrowserRecode));
     }
 
+    // 重新獲取瀏覽紀錄並傳送到redux
     getAndSendBrowserRecode();
   };
 
   // 取得和傳送瀏覽紀錄
-  const getAndSendBrowserRecode = () => {
+  const getAndSendBrowserRecode = useCallback(() => {
     const browserRecode = JSON.parse(
       localStorage.getItem("browserRecode") || "[]"
     );
@@ -155,11 +167,12 @@ function ProdList({ data, params }: Props) {
         updateBrowserRecode,
       },
     });
-  };
+  }, [dispatch, updateBrowserRecode]);
 
+  // 一掛載就獲取並傳送瀏覽紀錄
   useEffect(() => {
     getAndSendBrowserRecode();
-  }, [dispatch]);
+  }, [getAndSendBrowserRecode]);
 
   if (!data) return "";
   return (
@@ -175,9 +188,11 @@ function ProdList({ data, params }: Props) {
             onKeyUp={(e) => {
               if (e.keyCode === 13) {
                 changeCategoryColor();
+                // 搜索框為空字串，就跳轉到全部商品
                 if ((e.target as HTMLInputElement).value === "") {
                   router.push(`/prodList/page/1`);
                 } else {
+                  // 跳轉到搜索的頁面
                   router.push(
                     `/prodList/keyword/${
                       (e.target as HTMLInputElement).value
@@ -228,6 +243,7 @@ function ProdList({ data, params }: Props) {
                       />
                     </div>
                     <h4 className="truncate mb-2">
+                      {/* 跳轉到商品細頁 並更新瀏覽紀錄 */}
                       <Link href={`/prodDetail/${prod.sid}`}>
                         <a
                           onClick={() => {
@@ -238,6 +254,7 @@ function ProdList({ data, params }: Props) {
                         </a>
                       </Link>
                     </h4>
+                    {/* 判斷是否有特惠價 有就顯示特惠價並且文字為紅色 沒有就顯示原價並且文字為黑色 */}
                     <p
                       className={
                         prod.special_offer === ""
@@ -258,6 +275,7 @@ function ProdList({ data, params }: Props) {
           {/* browser-recode */}
           <div className="w-[15%] text-center">
             <h3 className="text-2xl mb-5">瀏覽紀錄</h3>
+            {/* 瀏覽紀錄倒轉排序 新的在上方 */}
             {browserRecodeState.browserRecode
               ? browserRecodeState.browserRecode
                   .slice(0)
@@ -311,6 +329,7 @@ function ProdList({ data, params }: Props) {
   );
 }
 
+// 根據不同params來選擇呼叫data
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   let r: AxiosResponse;
   switch (params!.slug![0]) {

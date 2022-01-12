@@ -6,7 +6,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import axios, { AxiosResponse } from "axios";
 import { useSelector } from "react-redux";
 import Category from "../../../components/category";
-
+// props 類型
 interface Props {
   prod: {
     data: {
@@ -30,6 +30,7 @@ interface Props {
   };
   params: { slug: Array<string> };
 }
+// 瀏覽紀錄 類型
 interface BrowserRecodeState {
   browserRecode: {
     browserRecode: [
@@ -62,6 +63,7 @@ function ProdDetail({ prod, params }: Props) {
   const router = useRouter();
   // console.log(router);
 
+  // 獲取瀏覽紀錄
   const browserRecodeState = useSelector((state: BrowserRecodeState) => {
     return state.browserRecode;
   });
@@ -154,6 +156,7 @@ function ProdDetail({ prod, params }: Props) {
   );
 }
 
+// 呼叫單筆資料
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const r = await axios.get(`http://localhost:3001/product/${params!.sid}`);
   return {
@@ -163,12 +166,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     },
   };
 };
+
 export const getStaticPaths: GetStaticPaths = async () => {
   const r = await axios.get(`http://localhost:3001/product`);
+  // 創建空[]
   let arrayNumber = [];
+  // 將商品總數push到空[]裡
   for (let i = 1; i <= r.data.totalRows; i++) {
     arrayNumber.push(i);
   }
+  // 迴圈到params裡
   const paths = arrayNumber.map((v) => {
     return { params: { sid: v + "" } };
   });

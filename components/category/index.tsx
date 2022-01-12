@@ -22,6 +22,7 @@ interface State {
   changeCategoryColor: { index: number; index2: number };
 }
 
+// 傳送index到redux
 const Category = () => {
   const dispatch = useDispatch();
   const changeCategoryColor = useCallback(
@@ -33,14 +34,16 @@ const Category = () => {
     [dispatch]
   );
 
+  // 獲取index判斷要變色的分類
   const activeNumber = useSelector((state: State) => {
     return state.changeCategoryColor;
   });
-  console.log("activeNumber", activeNumber);
+  // console.log("activeNumber", activeNumber);
 
   const categoryContentRef = useRef<HTMLDivElement>(null);
   const bodyContentRef = useRef<HTMLDivElement>(null);
 
+  // 展開category區域
   const cateShow = () => {
     if (categoryContentRef.current) {
       const cateHeight = categoryContentRef.current!.scrollHeight + "px";
@@ -55,6 +58,7 @@ const Category = () => {
       }
     }
   };
+  // 展開body區域
   const bodyShow = () => {
     if (bodyContentRef.current) {
       const bodyHeight = bodyContentRef.current!.scrollHeight + "px";
@@ -69,7 +73,9 @@ const Category = () => {
       }
     }
   };
-  const keepShow = () => {
+
+  // 判斷要展開category或body (換頁時)
+  const keepShow = useCallback(() => {
     if (activeNumber.index2 === 1) {
       const cateHeight = categoryContentRef.current!.scrollHeight + "px";
       categoryContentRef.current!.style.height = cateHeight;
@@ -79,11 +85,12 @@ const Category = () => {
       bodyContentRef.current!.style.height = bodyHeight;
       bodyContentRef.current!.style.transition = ".3s";
     }
-  };
+  }, [activeNumber.index2]);
 
+  // 一掛載就調用
   useEffect(() => {
     keepShow();
-  }, []);
+  }, [keepShow]);
 
   return (
     <>
